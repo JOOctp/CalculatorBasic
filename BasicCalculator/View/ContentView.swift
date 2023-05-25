@@ -9,20 +9,60 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var textValue: String = ""
-    @State private var numberOnScreen: Double = 0
-    @State private var previousNumber: Double = 0
-    @State private var performingMath: Bool = false
+    @State private var calculate: Double? = nil
+    @State private var firstNumber: Double? = nil
+    @State private var secondNumber: Double? = nil
+    @State private var expresion: String = ""
     
     func clickNumber(number: Int?){
-        if(performingMath == true) {
-            
-            performingMath = false
-        } else if(number != nil){
-            textValue = textValue + String(number!)
-            numberOnScreen = Double(textValue) ?? 0.0
+       if(number != nil){
+           textValue = textValue + String(number!)
         } else if(!textValue.isEmpty){
-            textValue.removeLast()
-            numberOnScreen = Double(textValue) ?? 0.0
+           textValue.removeLast()
+        } else {
+            textValue = ""
+            expresion = ""
+            calculate = nil
+            firstNumber = nil
+            secondNumber = nil
+        }
+    }
+    
+    func actionButton(action: String?, perform: Bool = false){
+        if(perform){
+            secondNumber = Double(textValue)
+            
+            switch expresion {
+                case "+": calculate = firstNumber! + secondNumber!
+                case "-": calculate = firstNumber! - secondNumber!
+                case "x": calculate = firstNumber! * secondNumber!
+                case "/": calculate = firstNumber! / secondNumber!
+                default: calculate = 0.0
+            }
+            
+            expresion = ""
+            textValue = String(calculate ?? 0.0)
+            
+            firstNumber = nil
+            return
+        }
+        
+        expresion = action!
+        
+        if(firstNumber != nil){
+            secondNumber = Double(textValue)
+            textValue = ""
+            
+            switch action {
+                case "+": calculate = firstNumber! + secondNumber!
+                case "-": calculate = firstNumber! - secondNumber!
+                case "x": calculate = firstNumber! * secondNumber!
+                case "/": calculate = firstNumber! / secondNumber!
+                default: calculate = 0.0
+            }
+        } else {
+            firstNumber = Double(textValue)
+            textValue = ""
         }
     }
     
@@ -36,13 +76,17 @@ struct ContentView: View {
                 
             HStack {
                 CustomButton(label: "C", color: Color.gray){
-                    
+                    textValue = ""
+                    expresion = ""
+                    calculate = nil
+                    firstNumber = nil
+                    secondNumber = nil
                 }
                 CustomButton(label: "Delete", color: Color.gray){
                     clickNumber(number: nil)
                 }
                 CustomButton(label: "/", color: Color.orange){
-                    
+                    actionButton(action: "/")
                 }
             }
             HStack {
@@ -56,7 +100,7 @@ struct ContentView: View {
                     clickNumber(number: 9)
                 }
                 CustomButton(label: "x", color: Color.orange){
-                    
+                    actionButton(action: "x")
                 }
             }
             HStack {
@@ -70,7 +114,7 @@ struct ContentView: View {
                     clickNumber(number: 6)
                 }
                 CustomButton(label: "-", color: Color.orange){
-                    
+                    actionButton(action: "-")
                 }
             }
             HStack {
@@ -84,7 +128,7 @@ struct ContentView: View {
                     clickNumber(number: 3)
                 }
                 CustomButton(label: "+", color: Color.orange){
-                    
+                    actionButton(action: "+")
                 }
             }
             HStack {
@@ -92,7 +136,7 @@ struct ContentView: View {
                     clickNumber(number: 0)
                 }
                 CustomButton(label: "=", color: Color.orange){
-                    
+                    actionButton(action: nil, perform: true)
                 }
             }
         }
